@@ -3,6 +3,7 @@ const path = require('path');
 const hbs = require('express-handlebars');
 const methodOverraid = require('method-override');
 const session = require('express-session');
+const flash = require('connect-flash');
 
 //inicializacion
 const app = express();
@@ -22,15 +23,21 @@ app.set('view engine', '.hbs');
 
 //middlewares
 app.use(express.urlencoded({extended:false})) //para entender los datos q se envian ej de formularios
-app.use(methodOverraid()); //para q los formularios puedan mandar tmb put y cosas asi no solo post y get
+app.use(methodOverraid("_method")); //para q los formularios puedan mandar tmb put y cosas asi no solo post y get
 app.use(session({
     secret:'mysecretapp',
     resave: true,
     saveUninitialized: true
 }))
+app.use(flash());
 
 //global variables
+app.use((req, res, next) => {
+    res.locals.success_msg = req.flash('success_msg');
+    res.locals.error_msg = req.flash('error_msg');
 
+    next();
+})
 
 //routes
 app.use(require('./routes/index')); //con esto le hacemos saber al sv que ahi estan las routes
