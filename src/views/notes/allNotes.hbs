@@ -19,6 +19,7 @@
     {{else}}
         <div class="card mx-auto">
             <div class="card-body">
+                <h1>Hello {{user.name}}</h1>  <!-- Viene desde la variable user que creamos en index (res.locals.user) -->
                 <p class="lead">No hay notas aun</p>
                 <a href="/notes/add" class="btn btn-success btn-block">Crea una </a>
             </div>

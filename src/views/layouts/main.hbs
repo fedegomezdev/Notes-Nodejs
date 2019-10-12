@@ -10,8 +10,9 @@
     <title>NotesApp</title>
 </head>
 <body>
-    <p>NAVEGACION</p>
-    <main class="container">
+    {{> navigation }}
+
+    <main class="container p-4">
         {{> messages }}
         {{> errors }}
         {{{ body }}}

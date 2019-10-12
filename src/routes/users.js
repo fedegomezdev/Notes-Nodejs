@@ -1,14 +1,28 @@
 const router = require('express').Router(); 
 const User = require('../models/User');
-
+const passport = require('passport');
 
 router.get('/users/signin', (req, res) => {
     res.render('users/signin');
 })
 
+
+router.post('/users/signin', passport.authenticate('local', { //la manera con la que se autentica es local, y va a usar toda la funcion que creamos en passport
+    successRedirect: '/notes', //a donde lo envia si pone bien el usuario y contra
+    failureRedirect: '/users/signin', //a donde si lo ponen mal
+    failureFlash: true  //para que envie mensajes
+}));   
+
+router.get('/users/logout', (req,res) => {
+    req.logout();
+    res.redirect('/');
+})
+
 router.get('/users/signup', (req,res) => {
     res.render('users/signup');
 })
+
+
 
 router.post('/users/signup', async (req, res) => {
     const {name , email, password, confirm_password } = req.body;

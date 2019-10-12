@@ -1,11 +1,13 @@
 const router = require('express').Router(); 
 const Note = require('../models/Notes');
 
-router.get('/notes/add' , (req, res) => {
-    res.render('notes/newNote');
+const { isAuthenticated } = require('../helpers/auth');
+
+router.get('/notes/add' , isAuthenticated , (req, res) => {  //cuando pedimos eso, primero se fija si esta autenticado , en caso que no redirecciona
+    res.render('notes/newNote');                            //en caso de que si, continua con lo de req,res
 })
 
-router.post('/notes/new-note', async (req, res) => {
+router.post('/notes/new-note', isAuthenticated , async (req, res) => {
     const {title, description } = req.body;
     const errors = [];
     if(!title){
@@ -22,33 +24,33 @@ router.post('/notes/new-note', async (req, res) => {
         })
     } else {
        const newNote = new Note({title, description});    
-       console.log(newNote);
+       newNote.user = req.user.id; //al momento que passport guarda el usuario guarda todo en req.user, y ahi pedimos el id
        await newNote.save(); //recien ahi se guarda
        req.flash('success_msg', 'Nota Guardada');
        res.redirect('/notes');
     }
 })
 
-router.get('/notes', async (req, res) => {
-   const notes = await Note.find().sort({date: 'desc'}); //que encuentre las notas y las ordena por fecha de manera descendiente
-   res.render('notes/allNotes' , {
+router.get('/notes', isAuthenticated ,async (req, res) => {
+   const notes = await Note.find({user: req.user.id}).sort({date: 'desc'}); //que encuentre las notas y las ordena por fecha de manera descendiente
+   res.render('notes/allNotes' , {                                          //ademas queremos solo las notas con las que el usuario se autentico    
        notes
    })
 })
 
-router.get('/notes/edit/:id', async(req, res) => {
+router.get('/notes/edit/:id', isAuthenticated ,async(req, res) => {
     const note = await Note.findById(req.params.id)
     res.render('notes/editNote', {note});
 })
 
-router.put('/notes/edit-note/:id', async(req,res) => {
+router.put('/notes/edit-note/:id', isAuthenticated ,async(req,res) => {
     const {title , description } = req.body;
     const note = await Note.findByIdAndUpdate(req.params.id , {title, description});
     req.flash('success_msg', 'Nota Actualizada');
     res.redirect('/notes');
 })
 
-router.delete('/notes/delete/:id', async(req, res) => {
+router.delete('/notes/delete/:id', isAuthenticated ,async(req, res) => {
     await Note.findOneAndRemove(req.params.id);
     req.flash('success_msg', 'Nota Eliminada');
 
